@@ -4,7 +4,7 @@ library(readxl)
 library(ggpubr)
 
 #read
-data <- read.csv("C:/Users/tmaso/OneDrive/Msc Environmental Management/Dissertation/R-Analysis/enmpg17/pitfalldata.csv")
+data <- read_xlsx('demo.xlsx')
 data$Habitat<-as.factor(data$Habitat)
 data$TransectID<-as.factor(data$TransectID)
 data$TrapID<-as.factor(data$TrapID)
@@ -14,13 +14,13 @@ dim(data)
 
 #total species occurence
 total<-data %>% 
-  group_by(Invertebrate.taxon) %>% 
+  group_by(`Invertebrate taxon`) %>% 
   summarise(n=sum(individuals)) %>% 
   arrange(desc(n))
 
 # species occurrence by habitat
 habitats<-data %>% 
-  group_by(Habitat,Invertebrate.taxon) %>% 
+  group_by(Habitat,`Invertebrate taxon`) %>% 
   summarise(n=sum(individuals)) %>% 
   arrange(Habitat,desc(n))
 
@@ -37,7 +37,7 @@ habitats %>%
 # plot habitats unique species
 habitats %>% 
   group_by(Habitat) %>% 
-  summarise('unique_n'=n_distinct(Invertebrate.taxon)) %>% 
+  summarise('unique_n'=n_distinct(`Invertebrate taxon`)) %>% 
   arrange(desc(unique_n)) %>% 
   ggplot(aes(Habitat,unique_n))+
   geom_col()+
@@ -48,8 +48,8 @@ habitats %>%
 
 # bar species stacked
 habitats %>% 
-  filter(Invertebrate.taxon!='BLANK'&Invertebrate.taxon!='bug') %>% 
-  ggplot(aes(reorder(Invertebrate.taxon,-n),n,fill=Habitat))+
+  filter(`Invertebrate taxon`!='BLANK'&`Invertebrate taxon`!='bug') %>% 
+  ggplot(aes(reorder(`Invertebrate taxon`,-n),n,fill=Habitat))+
   geom_col(position = 'stack')+
   labs(y='n individuals')+
   theme_pubclean()+
