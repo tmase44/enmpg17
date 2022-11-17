@@ -132,4 +132,6 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
 
 # woodland quadrat data
 woodts
+
+getwd()
                
