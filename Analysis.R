@@ -39,38 +39,43 @@ pitfallhabs<-pitfalllong %>%
 ### pitfall plots---------
 
 # plot habitats total individuals
-pitfallhabs %>% 
+p1<-pitfallhabs %>% 
   ggplot(aes(Type,n))+
   geom_col()+
-  labs(y='number of individuals',
+  labs(y='n individuals',
        x='Habitat',
        title='Total individuals per habitat')+
   theme_pubclean()
 
 # plot habitats unique taxa
-pitfallhabs %>% 
+p2<-pitfallhabs %>% 
   filter(n>0) %>% 
   group_by(Type) %>% 
   summarise('unique_n'=n_distinct(genus)) %>% 
   arrange(desc(unique_n)) %>% 
   ggplot(aes(Type,unique_n))+
   geom_col()+
-  labs(y='number of unique taxa',
+  labs(y='n unique taxa',
        x='Habitat',
        title = 'Unique taxa per habitat')+
   theme_pubclean()
 
 
 # bar species stacked
-pitfallhabs %>% 
+p3<-pitfallhabs %>% 
   ggplot(aes(reorder(genus,-n),n,fill=Type))+
   geom_col(position = 'stack')+
   labs(y='n individuals')+
   theme_pubclean()+
   theme(axis.text.x = element_text(size=12,angle = 90, vjust = 0.5, hjust=1))+
-  labs(y='number of individuals',
-       x='Species, arranged most-least frequent overall',
+  labs(y='n individuals',
+       x='Taxa',
        title = 'Species occurrence and distribution')
+
+#### plots richness----
+grid.arrange(p3,
+             arrangeGrob(p1,p2,ncol = 2),
+             nrow=2)
 
 # boxplot over transects- trap variation
 pitbox1<-pitfalllong %>% 
@@ -130,8 +135,63 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
           common.legend = TRUE,
           legend = 'bottom')
 
-# woodland quadrat data
-woodts
+# woodland quadrats----
 
-getwd()
-               
+# F = frequency, in now many quadrats it appeared
+# C = cover, % cover, visual estimate 
+
+# checking calcs against example data
+## MEAN, SD & SE
+woodts %>% 
+  select(Habitat_FOR,Hylocomium_splendens_C) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  summarise(n=n(),
+            mean=mean(Hylocomium_splendens_C),
+            SD=sd(Hylocomium_splendens_C),
+            SE=SD/sqrt(n))
+
+# CORRECT 53.3, 34.4 & 6.3
+
+woodts %>% 
+  select(Habitat_FOR,Hylocomium_splendens_C) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  summarise(mean=mean(Hylocomium_splendens_C))
+
+# convert names to match pifall habitats
+woodts2<-woodts %>% 
+  mutate('Habitat'=case_when(Habitat_FOR=='F'~'Mature Woodland (F)',
+                             Habitat_FOR=='O'~'Open Habitat (O)',
+                             Habitat_FOR=='R'~'Regenerating Woodland (R)'))
+
+# patterns between vegetation density, height, richness and tree density?
+
+woodts2 %>%
+  ggplot(aes(Habitat,Height_cm,color=Habitat))+
+  geom_boxplot()+
+  geom_jitter(aes(Habitat,Height_cm),
+              height = .05,width=.05,alpha=.5)+
+  theme_pubclean()
+# vegetation is taller in O, comparable in F & R
+
+woodts2 %>%
+  ggplot(aes(Habitat,tree_qty,color=Habitat))+
+  geom_boxplot()+
+  geom_jitter(aes(Habitat,tree_qty),
+              height = .05,width=.05,alpha=.5)+
+  
+  theme_pubclean()
+# more trees in R --> it is not intentionally planted F - old plantation
+
+woodts2 %>%
+  ggplot(aes(Habitat,taxa_unique,color=Habitat))+
+  geom_boxplot()+
+  geom_jitter(aes(Habitat,taxa_unique),
+              height = .05,width=.05,alpha=.5)+
+  theme_pubclean()
+# need to look at the SD and SE because there is signifcantly more variation in the mature woodland
+
+# MEAN, SD, SE FOR ALL COLS Hab == R
+woodts2 %>% 
+  group_by(Habitat_FOR) %>% 
+  select(c(2:15)) %>% 
+  summarise_each(funs(mean))
