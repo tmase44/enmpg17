@@ -206,27 +206,27 @@ woodmeanscf<-merge(woodmeansC,woodmeansF,
 
 # now do this for all data----
 x<-woodts2 %>% 
-  select(21,2:8) #CHECK----
+  select(21,16,17,18,19,2:8) #CHECK----
 for ( col in 1:ncol(x)){
   colnames(x)[col] <-  sub("_F.*", "", colnames(x)[col])
 }
 x<-x %>% 
   pivot_longer(names_to = 'taxa',
                values_to = 'frequency',
-               cols = -1)  
+               cols = -c(1:5))  
 #
 y<-woodts2 %>% 
-  select(21,9:15) #CHECK----
+  select(21,16,17,18,19,9:15) #CHECK----
 for ( col in 1:ncol(y)){
   colnames(y)[col] <-  sub("_C.*", "", colnames(y)[col])
 }
 y<-y %>% 
   pivot_longer(names_to = 'taxa',
                values_to = 'cover',
-               cols = -1) 
+               cols = -c(1:5))  
 # patterns between vegetation density, height, richness and tree density?
 #merge
-z<-cbind(x,y[,3])
+z<-cbind(x,y[,7])
 
 woodts2 %>%
   ggplot(aes(Habitat,Height_cm,color=Habitat))+
@@ -288,7 +288,7 @@ x %>%
 woodmeanscf %>% 
   ggplot(aes(`mean freq`,`mean cover`,color=Habitat))+
   geom_point()+
-  geom_smooth(se=F)+
+  geom_smooth()+
   theme_pubclean()+
   facet_wrap(~taxa)
 
@@ -299,3 +299,22 @@ z %>%
   geom_smooth(se=F)+
   theme_pubclean()
  # facet_wrap(~taxa)
+
+z %>% 
+  ggplot(aes(tree_qty,cover,color=Habitat))+
+  geom_point(alpha=.25)+
+  geom_smooth(method='lm')+
+  theme_pubclean()+
+  facet_wrap(~Habitat,scale='free')+
+  stat_regline_equation(label.y = 100, aes(label = ..rr.label..),size=5,color='#0077BB')+
+  stat_regline_equation(label.y = 90, aes(label = ..eq.label..),size=5,color='#0077BB')
+
+z %>% 
+  ggplot(aes(tree_qty,frequency,color=Habitat))+
+  geom_point(alpha=.25)+
+  geom_smooth(method='lm')+
+  theme_pubclean()+
+  facet_wrap(~taxa,scale='free')+
+  stat_regline_equation(label.y = 25, aes(label = ..rr.label..),size=5,color='#0077BB')+
+  stat_regline_equation(label.y = 20, aes(label = ..eq.label..),size=5,color='#0077BB')
+
