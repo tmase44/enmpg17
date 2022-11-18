@@ -278,4 +278,6 @@ woodmeanscf %>%
   geom_point()+
   geom_smooth(se=F)+
   theme_pubclean()+
-  facet_wrap(~Habitat,ncol=2,nrow=2)
+  facet_wrap(~taxa)
+
+# SAME WITH RAW DATA
