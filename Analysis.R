@@ -297,5 +297,5 @@ z %>%
   ggplot(aes(frequency,cover,color=Habitat))+
   geom_point(alpha=.25)+
   geom_smooth(se=F)+
-  theme_pubclean()+
-  facet_wrap(~taxa)
+  theme_pubclean()
+ # facet_wrap(~taxa)
