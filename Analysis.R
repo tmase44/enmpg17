@@ -5,7 +5,7 @@ p_load(tidyverse,readxl,ggpubr,gridExtra,reshape2)
 # data import----
 pitfall<-read_xlsx('pitfall.xlsx')
 woodts<-read_xlsx('woodlandts.xlsx')
-qrbias<-read_xlsx('quadratbias.xlsx')
+qrbias<-read_xlsx('quadratbias.xlsx') # this will helpto support which data is more accurate
 
 # factors----
 pitfall$Type<-as.factor(pitfall$Type) # habitat
@@ -206,15 +206,27 @@ woodmeanscf<-merge(woodmeansC,woodmeansF,
 
 # now do this for all data----
 x<-woodts2 %>% 
-  select(21,16,17,18,2:8) #CHECK----
+  select(21,2:8) #CHECK----
 for ( col in 1:ncol(x)){
   colnames(x)[col] <-  sub("_F.*", "", colnames(x)[col])
 }
 x<-x %>% 
   pivot_longer(names_to = 'taxa',
                values_to = 'frequency',
-               cols = -c(1:4))  
+               cols = -1)  
+#
+y<-woodts2 %>% 
+  select(21,9:15) #CHECK----
+for ( col in 1:ncol(y)){
+  colnames(y)[col] <-  sub("_C.*", "", colnames(y)[col])
+}
+y<-y %>% 
+  pivot_longer(names_to = 'taxa',
+               values_to = 'cover',
+               cols = -1) 
 # patterns between vegetation density, height, richness and tree density?
+#merge
+z<-cbind(x,y[,3])
 
 woodts2 %>%
   ggplot(aes(Habitat,Height_cm,color=Habitat))+
@@ -281,3 +293,9 @@ woodmeanscf %>%
   facet_wrap(~taxa)
 
 # SAME WITH RAW DATA
+z %>% 
+  ggplot(aes(frequency,cover,color=Habitat))+
+  geom_point(alpha=.25)+
+  geom_smooth(se=F)+
+  theme_pubclean()+
+  facet_wrap(~taxa)
