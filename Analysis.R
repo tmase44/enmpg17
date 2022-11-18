@@ -146,6 +146,15 @@ woodts %>%
             SD=sd(Hylocomium_splendens_C),
             SE=SD/sqrt(n))
 
+# woodCMSE<-woodts %>% 
+#   select(-group) %>% 
+#   group_by(Habitat_FOR) %>% 
+#   summarise(across(
+#     .cols = is.numeric,
+#     .fns = list(count=length, mean=mean, sd=sd, se=sd/sqrt(.)),
+#     .names = "{col}_{fn}"))
+
+
 # CORRECT 53.3, 34.4 & 6.3
 
 woodts %>% 
@@ -158,6 +167,13 @@ woodts2<-woodts %>%
   mutate('Habitat'=case_when(Habitat_FOR=='F'~'Mature Woodland (F)',
                              Habitat_FOR=='O'~'Open Habitat (O)',
                              Habitat_FOR=='R'~'Regenerating Woodland (R)'))
+
+# ALL Summary SE
+
+woodCMSE<-woodts2 %>% 
+  select(-group,-Habitat_FOR) %>% 
+  group_by(Habitat) %>% 
+  summarise_all(list(mean = ~mean(.), sd = ~sd(.), se = ~sd(.x)/sqrt(length(.x))))
 
 # patterns between vegetation density, height, richness and tree density?
 
