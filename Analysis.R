@@ -1,6 +1,6 @@
 # Packages----
 library(pacman)
-p_load(tidyverse,readxl,ggpubr,gridExtra)
+p_load(tidyverse,readxl,ggpubr,gridExtra,reshape2)
 
 # data import----
 pitfall<-read_xlsx('pitfall.xlsx')
@@ -137,7 +137,7 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
 # C = cover, % cover, visual estimate 
 
 # checking calcs against example data
-## MEAN, SD & SE
+## MEAN, SD & SE----
 woodts %>% 
   select(Habitat_FOR,Hylocomium_splendens_C) %>% 
   filter(Habitat_FOR=='R') %>% 
@@ -162,13 +162,13 @@ woodts %>%
   filter(Habitat_FOR=='R') %>% 
   summarise(mean=mean(Hylocomium_splendens_C))
 
-# convert names to match pifall habitats
+# convert names to match pifall habitats----
 woodts2<-woodts %>% 
   mutate('Habitat'=case_when(Habitat_FOR=='F'~'Mature Woodland (F)',
                              Habitat_FOR=='O'~'Open Habitat (O)',
                              Habitat_FOR=='R'~'Regenerating Woodland (R)'))
 
-# ALL Summary SE
+# ALL Summary SE----
 
 woodCMSE<-woodts2 %>% 
   select(-group,-Habitat_FOR) %>% 
@@ -204,16 +204,16 @@ woodmeanscf<-merge(woodmeansC,woodmeansF,
                    by=c('Habitat','taxa'),
                    all=T)
 
-# now do this for all data
+# now do this for all data----
 x<-woodts2 %>% 
-  select(21,2:8)
+  select(21,16,17,18,2:8) #CHECK----
 for ( col in 1:ncol(x)){
   colnames(x)[col] <-  sub("_F.*", "", colnames(x)[col])
 }
 x<-x %>% 
   pivot_longer(names_to = 'taxa',
                values_to = 'frequency',
-               cols = -Habitat)  
+               cols = -c(1:4))  
 # patterns between vegetation density, height, richness and tree density?
 
 woodts2 %>%
@@ -221,6 +221,7 @@ woodts2 %>%
   geom_boxplot()+
   geom_jitter(aes(Habitat,Height_cm),
               height = .05,width=.05,alpha=.5)+
+  labs(title = 'Tree height across habitats')+
   theme_pubclean()
 # vegetation is taller in O, comparable in F & R
 
@@ -229,7 +230,7 @@ woodts2 %>%
   geom_boxplot()+
   geom_jitter(aes(Habitat,tree_qty),
               height = .05,width=.05,alpha=.5)+
-  
+  labs(title = 'Tree quantity across habitats')+
   theme_pubclean()
 # more trees in R --> it is not intentionally planted F - old plantation
 
@@ -238,7 +239,18 @@ woodts2 %>%
   geom_boxplot()+
   geom_jitter(aes(Habitat,taxa_unique),
               height = .05,width=.05,alpha=.5)+
+  labs(title = 'Unique taxa across habitats')+
   theme_pubclean()
+
 # need to look at the SD and SE because there is signifcantly more variation in the mature woodland
+
+# next analysis should be:
+# linear relationship between taxa and tree density
+
+x %>% 
+  filter(Habitat=='Mature Woodland (F)') %>% 
+  ggplot(aes(frequency,tree_qty,color=taxa))+
+  geom_point()+
+  geom_smooth(method='lm',se=F)
 
 
