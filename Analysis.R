@@ -271,3 +271,11 @@ x %>%
   ggplot(aes(taxa,frequency))+
   geom_boxplot()+
   theme_pubclean()
+
+
+woodmeanscf %>% 
+  ggplot(aes(`mean freq`,`mean cover`,color=Habitat))+
+  geom_point()+
+  geom_smooth(se=F)+
+  theme_pubclean()+
+  facet_wrap(~Habitat,ncol=2,nrow=2)
