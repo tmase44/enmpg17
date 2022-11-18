@@ -314,7 +314,7 @@ z %>%
   geom_point(alpha=.25)+
   geom_smooth(method='lm')+
   theme_pubclean()+
-  facet_wrap(~taxa,scale='free')+
+  facet_wrap(~Habitat,scale='free')+
   stat_regline_equation(label.y = 25, aes(label = ..rr.label..),size=5,color='#0077BB')+
   stat_regline_equation(label.y = 20, aes(label = ..eq.label..),size=5,color='#0077BB')
 
