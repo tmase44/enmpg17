@@ -81,11 +81,10 @@ grid.arrange(p3,
 pitbox1<-pitfalllong %>% 
   group_by(Type,`Trap line`) %>% 
   summarise(n=sum(count)) %>% 
-  filter(n<20) %>% # remove outliers - optional
+  #filter(n<20) %>% # remove outliers - optional
   ggplot(aes(Type,n,color=Type))+
-  geom_boxplot()+
-  #geom_point(aes(shape=`Trap line`),
-   #          alpha=.55,size=3,position=position_dodge(width=.05))+
+  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
        x='Habitat',
@@ -98,9 +97,8 @@ pitbox1<-pitfalllong %>%
 pitbox2<-pitfalllong %>% 
   filter(genus=='Araneae') %>% 
   ggplot(aes(Type,count,color=Type))+
-  geom_boxplot()+
-  #geom_point(aes(shape=`Trap line`),
-  #          alpha=.55,size=3,position=position_dodge(width=.05))+
+  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
        x='Habitat',
@@ -110,9 +108,8 @@ pitbox2<-pitfalllong %>%
 pitbox3<-pitfalllong %>% 
   filter(genus=='Diptera') %>% 
   ggplot(aes(Type,count,color=Type))+
-  geom_boxplot()+
-  #geom_point(aes(shape=`Trap line`),
-  #          alpha=.55,size=3,position=position_dodge(width=.05))+
+  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
        x='Habitat',
@@ -122,9 +119,8 @@ pitbox3<-pitfalllong %>%
 pitbox4<-pitfalllong %>% 
   filter(genus=='Collembola') %>% 
   ggplot(aes(Type,count,color=Type))+
-  geom_boxplot()+
-  #geom_point(aes(shape=`Trap line`),
-  #          alpha=.55,size=3,position=position_dodge(width=.05))+
+  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
        x='Habitat',
