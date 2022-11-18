@@ -248,9 +248,26 @@ woodts2 %>%
 # linear relationship between taxa and tree density
 
 x %>% 
-  filter(Habitat=='Mature Woodland (F)') %>% 
-  ggplot(aes(frequency,tree_qty,color=taxa))+
+  filter(frequency!=0) %>% 
+  # #filter(tree_qty!=0) %>% 
+  ggplot(aes(frequency,Height_cm,color=Habitat))+
   geom_point()+
   geom_smooth(method='lm',se=F)
 
+x %>% 
+  filter(Habitat=='Mature Woodland (F)') %>% 
+  ggplot(aes(taxa,frequency))+
+  geom_boxplot()+
+  theme_pubclean()
+  
+x %>% 
+  filter(Habitat=='Open Habitat (O)') %>% 
+  ggplot(aes(taxa,frequency))+
+  geom_boxplot()+
+  theme_pubclean()
 
+x %>% 
+  filter(Habitat=='Regenerating Woodland (R)') %>% 
+  ggplot(aes(taxa,frequency))+
+  geom_boxplot()+
+  theme_pubclean()
