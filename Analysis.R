@@ -174,7 +174,46 @@ woodCMSE<-woodts2 %>%
   select(-group,-Habitat_FOR) %>% 
   group_by(Habitat) %>% 
   summarise_all(list(mean = ~mean(.), sd = ~sd(.), se = ~sd(.x)/sqrt(length(.x))))
+# freq
+woodmeansF<-woodCMSE %>% 
+  select(1:8)
 
+for ( col in 1:ncol(woodmeansF)){
+  colnames(woodmeansF)[col] <-  sub("_F.*", "", colnames(woodmeansF)[col])
+}
+
+woodmeansF<-woodmeansF %>% 
+  pivot_longer(names_to = 'taxa',
+               values_to = 'mean freq',
+               cols = -Habitat)
+  
+# cover
+woodmeansC<-woodCMSE %>% 
+  select(1,9:15)
+
+for ( col in 1:ncol(woodmeansC)){
+  colnames(woodmeansC)[col] <-  sub("_C.*", "", colnames(woodmeansC)[col])
+}
+
+woodmeansC<-woodmeansC %>% 
+  pivot_longer(names_to = 'taxa',
+               values_to = 'mean cover',
+               cols = -Habitat)
+# merge
+woodmeanscf<-merge(woodmeansC,woodmeansF, 
+                   by=c('Habitat','taxa'),
+                   all=T)
+
+# now do this for all data
+x<-woodts2 %>% 
+  select(21,2:8)
+for ( col in 1:ncol(x)){
+  colnames(x)[col] <-  sub("_F.*", "", colnames(x)[col])
+}
+x<-x %>% 
+  pivot_longer(names_to = 'taxa',
+               values_to = 'frequency',
+               cols = -Habitat)  
 # patterns between vegetation density, height, richness and tree density?
 
 woodts2 %>%
@@ -202,8 +241,4 @@ woodts2 %>%
   theme_pubclean()
 # need to look at the SD and SE because there is signifcantly more variation in the mature woodland
 
-# MEAN, SD, SE FOR ALL COLS Hab == R
-woodts2 %>% 
-  group_by(Habitat_FOR) %>% 
-  select(c(2:15)) %>% 
-  summarise_each(funs(mean))
+
