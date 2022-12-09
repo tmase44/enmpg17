@@ -94,7 +94,10 @@ pitfallhabs %>%
                               "Total number of individuals per habitat"=3)) %>% 
   kable_styling()
 
-
+# bigger legend
+myTheme <- theme(legend.text = element_text(size = 12), 
+                 legend.title = element_text(size = 14), 
+                 legend.key.size = unit(1, 'cm'))
 
 # boxplot over transects- trap variation
 pitbox1<-pitfalllong %>% 
@@ -108,10 +111,11 @@ pitbox1<-pitfalllong %>%
   theme(text = element_text(family='Times'))+  
     labs(y='n individuals per trap-line',
        x='Habitat',
-       title='1.1: Sample size variation between plots / habitats')+
+       title='1.1: Pitfall samples across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
-                              'Regenerating Woodland (R)'='#33BBEE'))
+                              'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 # 3 main taxa: 
 # boxplot for each species, looking at their mean distribution by habitat
@@ -129,7 +133,8 @@ pitbox2<-pitfalllong %>%
        title='1.2: Araneae distribution across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
-                              'Regenerating Woodland (R)'='#33BBEE'))
+                              'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 
 # Diptera | flies, midges
@@ -145,7 +150,8 @@ pitbox3<-pitfalllong %>%
        title='1.3: Diptera distribution across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
-                              'Regenerating Woodland (R)'='#33BBEE'))
+                              'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 #Collembola | springtails
 pitbox4<-pitfalllong %>% 
@@ -160,14 +166,16 @@ pitbox4<-pitfalllong %>%
        title='1.4: Collembola distribution across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
-                              'Regenerating Woodland (R)'='#33BBEE'))
+                              'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 #### combobox----
 # SHOW THIS ONE----
 ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
           common.legend = TRUE,
-          legend = 'bottom',
-          annotate_figure(fig.lab = 'Fig.1.'))
+          legend = 'top')
+
+
 
 # Mature woodland ie better for invertebrate biodiversity
   # total individuals and unique taxa are greater in Mature woodland
@@ -304,16 +312,19 @@ w3<-woodlandqr %>%
 # SHOW THIS ONE----
 ggarrange(w0,w1,w2,w3)
 
-
+# other scatterplots----
 woodlandqr %>% 
-  filter(tree_qty>0) %>% 
-  ggplot(aes(tree_qty,Height_cm,color=Habitat_FOR))+
+  ggplot(aes(tree_qty,taxa_unique))+
   geom_point()+
-  geom_smooth(method='lm')+
-  stat_cor(show.legend = F)+
+  geom_smooth(method='lm',color='#0077BB')+
+  stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
-  facet_wrap(~Habitat_FOR,
-             scales = 'free_x')
+  theme(text = element_text(family='Times'))
+
+# tree density and unique species has a weak negative correlation, R=-0.11
+
+
+
 # At the habitat level there is more relationship with height and trees
 # Mature forest = negative correlation
 # Open forest negative but few occurences
@@ -390,7 +401,8 @@ wb1<-woodlandqrlong %>%
   labs(title = '3.1: Calluna vulgaris',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                                              'Open Habitat (O)'='#CC3311',
-                                             'Regenerating Woodland (R)'='#33BBEE'))
+                                             'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 wb2<-woodlandqrlong %>% 
   filter(taxa=='Hylocomium splendens') %>% 
@@ -401,7 +413,8 @@ wb2<-woodlandqrlong %>%
     labs(title = '3.2: Hylocomium splendens',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
-                              'Regenerating Woodland (R)'='#33BBEE'))
+                              'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 wb3<-woodlandqrlong %>% 
   filter(taxa=='Vaccinium myrtilus') %>% 
@@ -412,7 +425,8 @@ wb3<-woodlandqrlong %>%
   labs(title = '3.3: Vaccinium myrtilus',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                                              'Open Habitat (O)'='#CC3311',
-                                             'Regenerating Woodland (R)'='#33BBEE'))
+                                             'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 wb4<-woodlandqrlong %>% 
   filter(taxa=='Vaccinium vitis idaea') %>% 
@@ -423,11 +437,12 @@ wb4<-woodlandqrlong %>%
   labs(title = '3.4: Vaccinium vitis idaea',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                                              'Open Habitat (O)'='#CC3311',
-                                             'Regenerating Woodland (R)'='#33BBEE'))
+                                             'Regenerating Woodland (R)'='#33BBEE'))+
+  myTheme
 
 ggarrange(wb1,wb2,wb3,wb4,
           common.legend = TRUE,
-          legend = 'bottom')
+          legend = 'top')
 
 # mean,sd,se
 woodlandqr %>% 
