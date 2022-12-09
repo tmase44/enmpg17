@@ -114,9 +114,9 @@ myTheme <- theme(legend.text = element_text(size = 12),
 pitbox1<-pitfalllong %>% 
   group_by(Type,habitat_new,`Trap line`) %>% 
   summarise(n=sum(count)) %>% 
-  filter(n<20) %>% # remove outliers - optional
+  #filter(n<20) %>% # remove outliers - optional
   ggplot(aes(habitat_new,n,color=Type))+
-  geom_boxplot(outlier.shape=NA)+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
@@ -126,16 +126,17 @@ pitbox1<-pitfalllong %>%
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
-  myTheme
+  myTheme+
+  coord_cartesian(ylim=c(0,25))
 
 # 3 main taxa: 
 # boxplot for each species, looking at their mean distribution by habitat
 
 # Araneae | spiders
 pitbox2<-pitfalllong %>% 
-  filter(genus=='Araneae') %>% 
+  filter(Taxa=='Araneae') %>% 
   ggplot(aes(habitat_new,count,color=Type))+
-  geom_boxplot(outlier.shape=NA)+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
@@ -145,14 +146,15 @@ pitbox2<-pitfalllong %>%
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
-  myTheme
+  myTheme+
+  scale_y_continuous(limits=c(0,15), breaks = c(0,5,10,15))
 
 
 # Diptera | flies, midges
 pitbox3<-pitfalllong %>% 
-  filter(genus=='Diptera') %>% 
+  filter(Taxa=='Diptera') %>% 
   ggplot(aes(habitat_new,count,color=Type))+
-  geom_boxplot(outlier.shape=NA)+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
@@ -162,13 +164,15 @@ pitbox3<-pitfalllong %>%
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
-  myTheme
+  myTheme+
+  scale_y_continuous(limits=c(0,15), breaks = c(0,5,10,15))
+
 
 #Collembola | springtails
 pitbox4<-pitfalllong %>% 
-  filter(genus=='Collembola') %>% 
+  filter(Taxa=='Collembola') %>% 
   ggplot(aes(habitat_new,count,color=Type))+
-  geom_boxplot(outlier.shape=NA)+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
@@ -178,7 +182,9 @@ pitbox4<-pitfalllong %>%
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
-  myTheme
+  myTheme+
+  scale_y_continuous(limits=c(0,15), breaks = c(0,5,10,15))
+
 
 
 #### combobox----
@@ -195,14 +201,17 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
     #or collembola which prefer soil, leaf litter and logs. 
   # Collembola are greater in regen where there is more leaf litter as the forest is mixed decidious and broadleaf.
 
+## ALL N = 4 BECAUSE THERE ARE 4 LINES FOR EACH, ALL TRAPS ARE POOLED TOGETHER
 
 # MEANS ALL PITFALL TRAPS----
 pitfalllong %>% 
-  select(habitat_new,count) %>% 
-  filter(habitat_new=='R') %>% 
+  group_by(habitat_new,`Trap line`) %>% 
+  summarise(x=sum(count)) %>% 
+  select(habitat_new,x) %>% 
+  filter(habitat_new=='F') %>% 
   summarise(n=n(),
-            mean=mean(count),
-            SD=sd(count),
+            mean=mean(x),
+            SD=sd(x),
             SE=SD/sqrt(n))
 # F mean=1.58  SD=3.15  SE=0.437
 # O mean=1.19  SD=2.25  SE=0.312
@@ -212,7 +221,7 @@ pitfalllong %>%
 pitfalllong %>% 
   select(habitat_new,Taxa,count) %>% 
   filter(Taxa=='Araneae') %>% 
-  filter(habitat_new=='R') %>% 
+  filter(habitat_new=='F') %>% 
   summarise(n=n(),
             mean=mean(count),
             SD=sd(count),
