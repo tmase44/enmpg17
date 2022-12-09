@@ -1,6 +1,7 @@
 # Packages----
 library(pacman)
 p_load(tidyverse,readxl,ggpubr,gridExtra,reshape2,kableExtra)
+windowsFonts(Times=windowsFont("TT Times New Roman"))
 
 # data import----
 pitfall<-read_xlsx('pitfall.xlsx')
@@ -23,6 +24,12 @@ pitfalllong<-pitfall %>%
                cols = c(-Type,-`Trap line`))
 pitfalllong$genus<-as.factor(pitfalllong$genus)
 pitfalllong$`Trap line`<-as.factor(pitfalllong$`Trap line`)
+
+pitfalllong<-pitfalllong %>% 
+  mutate(habitat_new=case_when(Type=='Mature Woodland (F)'~'F',
+                               Type=='Open Habitat (O)'~'O',
+                               Type=='Regenerating Woodland (R)'~'R'))
+
 
 #total species occurence
 pitfalltotal<-pitfalllong %>% 
@@ -91,16 +98,20 @@ pitfallhabs %>%
 
 # boxplot over transects- trap variation
 pitbox1<-pitfalllong %>% 
-  group_by(Type,`Trap line`) %>% 
+  group_by(Type,habitat_new,`Trap line`) %>% 
   summarise(n=sum(count)) %>% 
   filter(n<20) %>% # remove outliers - optional
-  ggplot(aes(Type,n,color=Type))+
+  ggplot(aes(habitat_new,n,color=Type))+
   geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
-  labs(y='n individuals per trap-line',
+  theme(text = element_text(family='Times'))+  
+    labs(y='n individuals per trap-line',
        x='Habitat',
-       title='Sample size variation between plots / habitats')
+       title='1.1: Sample size variation between plots / habitats')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                              'Open Habitat (O)'='#CC3311',
+                              'Regenerating Woodland (R)'='#33BBEE'))
 
 # 3 main taxa: 
 # boxplot for each species, looking at their mean distribution by habitat
@@ -108,35 +119,48 @@ pitbox1<-pitfalllong %>%
 # Araneae | spiders
 pitbox2<-pitfalllong %>% 
   filter(genus=='Araneae') %>% 
-  ggplot(aes(Type,count,color=Type))+
+  ggplot(aes(habitat_new,count,color=Type))+
   geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
-  labs(y='n individuals per trap-line',
+  theme(text = element_text(family='Times'))+  
+    labs(y='n individuals per trap-line',
        x='Habitat',
-       title='Araneae distribution across habitats')
+       title='1.2: Araneae distribution across habitats')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                              'Open Habitat (O)'='#CC3311',
+                              'Regenerating Woodland (R)'='#33BBEE'))
+
 
 # Diptera | flies, midges
 pitbox3<-pitfalllong %>% 
   filter(genus=='Diptera') %>% 
-  ggplot(aes(Type,count,color=Type))+
+  ggplot(aes(habitat_new,count,color=Type))+
   geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
-  labs(y='n individuals per trap-line',
+  theme(text = element_text(family='Times'))+  
+    labs(y='n individuals per trap-line',
        x='Habitat',
-       title='Diptera distribution across habitats')
+       title='1.3: Diptera distribution across habitats')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                              'Open Habitat (O)'='#CC3311',
+                              'Regenerating Woodland (R)'='#33BBEE'))
 
 #Collembola | springtails
 pitbox4<-pitfalllong %>% 
   filter(genus=='Collembola') %>% 
-  ggplot(aes(Type,count,color=Type))+
+  ggplot(aes(habitat_new,count,color=Type))+
   geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
+  theme(text = element_text(family='Times'))+  
   labs(y='n individuals per trap-line',
        x='Habitat',
-       title='Collembola distribution across habitats')
+       title='1.4: Collembola distribution across habitats')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                              'Open Habitat (O)'='#CC3311',
+                              'Regenerating Woodland (R)'='#33BBEE'))
 
 #### combobox----
 # SHOW THIS ONE----
@@ -237,43 +261,48 @@ w0<-woodlandqr %>%
   filter(tree_qty>0) %>% 
   ggplot(aes(tree_qty,Height_cm))+
   geom_point()+
-  geom_smooth(method='lm')+
-  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  geom_smooth(method='lm',color='#0077BB')+
+  stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
-  labs(title='All habitats',x='Tree quantity',y='Vegetation height')
+  theme(text = element_text(family='Times'))+  
+    labs(title='2.1: All habitats',x='Tree quantity',y='Vegetation height')
 # there is a very week correlation between tree frequency and vegetation height
 w1<-woodlandqr %>% 
   filter(tree_qty>0) %>% 
   filter(Habitat_FOR=='F') %>% 
   ggplot(aes(tree_qty,Height_cm))+
   geom_point()+
-  geom_smooth(method='lm')+
-  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  geom_smooth(method='lm',color='#0077BB')+
+  stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
-  labs(title='Mature Woodland',x='Tree quantity',y='Vegetation height')
+  theme(text = element_text(family='Times'))+  
+  labs(title='2.2: Mature Woodland (F)',x='Tree quantity',y='Vegetation height')
 
 w2<-woodlandqr %>% 
   filter(tree_qty>0) %>% 
   filter(Habitat_FOR=='O') %>% 
   ggplot(aes(tree_qty,Height_cm))+
   geom_point()+
-  geom_smooth(method='lm')+
-  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  geom_smooth(method='lm',color='#0077BB')+
+  stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
-  labs(title='Open Forest',x='Tree quantity',y='Vegetation height')
+  theme(text = element_text(family='Times'))+  
+    labs(title='2.3: Open Habitat (O)',x='Tree quantity',y='Vegetation height')
 
 w3<-woodlandqr %>% 
   filter(tree_qty>0) %>% 
   filter(Habitat_FOR=='R') %>% 
   ggplot(aes(tree_qty,Height_cm))+
   geom_point()+
-  geom_smooth(method='lm')+
-  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  geom_smooth(method='lm',color='#0077BB')+
+  stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
-  labs(title='Regenerating Forest',x='Tree quantity',y='Vegetation height')
+  theme(text = element_text(family='Times'))+  
+    labs(title='2.4: Regenerating Forest (R)',x='Tree quantity',y='Vegetation height')
 
 # SHOW THIS ONE----
 ggarrange(w0,w1,w2,w3)
+
 
 woodlandqr %>% 
   filter(tree_qty>0) %>% 
@@ -306,7 +335,11 @@ woodlandqrlong <- woodlandqr %>%
                         taxa=='Vaccinium_myrtilus_F'~'Vaccinium myrtilus',
                         taxa=='Sphagnum_F'~'Sphagnum',
                         taxa=='Molinia_F'~'Molinia',
-                        taxa=='Polytrichum_F'~'Polytrichum'))
+                        taxa=='Polytrichum_F'~'Polytrichum')) %>% 
+  mutate(habitat_new=case_when(Habitat_FOR=='F'~'Mature Woodland (F)',
+                               Habitat_FOR=='O'~'Open Habitat (O)',
+                               Habitat_FOR=='R'~'Regenerating Woodland (R)'))
+
 
 # most common species total in all habs
 woodtaxasum <- woodlandqrlong %>% 
@@ -346,6 +379,54 @@ woodlandqrlong %>%
   facet_wrap(~taxa)+
   theme_pubclean()+
   labs(x='Habitat',y='Frequency')
+### !! split this up for separate titles
+wb1<-woodlandqrlong %>% 
+  filter(taxa=='Calluna vulgaris') %>% 
+  ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
+  geom_boxplot()+
+  theme_pubclean()+
+  theme(text = element_text(family='Times'))+  
+  labs(title = '3.1: Calluna vulgaris',x='Habitat',y='Frequency')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                                             'Open Habitat (O)'='#CC3311',
+                                             'Regenerating Woodland (R)'='#33BBEE'))
+
+wb2<-woodlandqrlong %>% 
+  filter(taxa=='Hylocomium splendens') %>% 
+  ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
+  geom_boxplot()+
+  theme_pubclean()+
+  theme(text = element_text(family='Times'))+  
+    labs(title = '3.2: Hylocomium splendens',x='Habitat',y='Frequency')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                              'Open Habitat (O)'='#CC3311',
+                              'Regenerating Woodland (R)'='#33BBEE'))
+
+wb3<-woodlandqrlong %>% 
+  filter(taxa=='Vaccinium myrtilus') %>% 
+  ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
+  geom_boxplot()+
+  theme_pubclean()+
+  theme(text = element_text(family='Times'))+  
+  labs(title = '3.3: Vaccinium myrtilus',x='Habitat',y='Frequency')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                                             'Open Habitat (O)'='#CC3311',
+                                             'Regenerating Woodland (R)'='#33BBEE'))
+
+wb4<-woodlandqrlong %>% 
+  filter(taxa=='Vaccinium vitis idaea') %>% 
+  ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
+  geom_boxplot()+
+  theme_pubclean()+
+  theme(text = element_text(family='Times'))+  
+  labs(title = '3.4: Vaccinium vitis idaea',x='Habitat',y='Frequency')+
+  scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
+                                             'Open Habitat (O)'='#CC3311',
+                                             'Regenerating Woodland (R)'='#33BBEE'))
+
+ggarrange(wb1,wb2,wb3,wb4,
+          common.legend = TRUE,
+          legend = 'bottom')
 
 # mean,sd,se
 woodlandqr %>% 
@@ -380,5 +461,6 @@ woodlandtable %>%
                               "Mature Forest"=4,
                               "Open Forest"=4,
                               "Regenerating Forest"=4)) %>% 
-  kable_styling() %>% 
-  column_spec(column = c(2,3,4,5,10,11,12,13), background = '#F2F2F2')
+  kable_styling(html_font = 'Times') %>% 
+  column_spec(column = c(2,3,4,5,10,11,12,13), background = '#F2F2F2') %>% 
+  row_spec(0, italic = T)
