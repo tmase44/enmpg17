@@ -13,7 +13,7 @@ woodts$Habitat_FOR<-as.factor(woodts$Habitat_FOR) #habitat
 #qrbias$group<-as.factor(qrbias$group) #groups
 # qrbias$quadrat<-as.factor # might need this later
 
-# pitfall data----
+# PITFALL DATA----
 
 # long transform the pitfall data
 pitfalllong<-pitfall %>% 
@@ -73,15 +73,14 @@ p3<-pitfallhabs %>%
        title = 'Species occurrence and distribution')
 
 #### plots richness----
-grid.arrange(p3,
-             arrangeGrob(p1,p2,ncol = 2),
-             nrow=2)
+grid.arrange(p1,p2)
+p3
 
 # boxplot over transects- trap variation
 pitbox1<-pitfalllong %>% 
   group_by(Type,`Trap line`) %>% 
   summarise(n=sum(count)) %>% 
-  #filter(n<20) %>% # remove outliers - optional
+  filter(n<20) %>% # remove outliers - optional
   ggplot(aes(Type,n,color=Type))+
   geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
@@ -130,6 +129,13 @@ pitbox4<-pitfalllong %>%
 ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
           common.legend = TRUE,
           legend = 'bottom')
+
+# Mature woodland ie better for invertebrate biodiversity
+  # total individuals and unique taxa are greater in Mature woodland
+  # Open = more flies. There habitat is open, not ideal for predators (aranea)
+    #or collembola which prefer soil, leaf litter and logs. 
+  # Collembola are greater in regen where there is more leaf litter as the forest is mixed decidious and broadleaf.
+
 
 # WOODTS QUADRATS----
 
@@ -213,156 +219,68 @@ woodlandqr %>%
 
 # so how does this affect vegatation?
 
-woodlandqr %>% 
+w0<-woodlandqr %>% 
+  filter(tree_qty>0) %>% 
   ggplot(aes(tree_qty,Height_cm))+
   geom_point()+
   geom_smooth(method='lm')+
-  theme_pubclean()
-
-
-
-
-
-
-
-
-
-
-# OLD woodland quadrats----
-
-# F = frequency, in now many quadrats it appeared
-# C = cover, % cover, visual estimate 
-
-# checking calcs against example data
-## MEAN, SD & SE----
-woodts %>% 
-  select(Habitat_FOR,Hylocomium_splendens_C) %>% 
-  filter(Habitat_FOR=='R') %>% 
-  summarise(n=n(),
-            mean=mean(Hylocomium_splendens_C),
-            SD=sd(Hylocomium_splendens_C),
-            SE=SD/sqrt(n))
-
-# woodCMSE<-woodts %>% 
-#   select(-group) %>% 
-#   group_by(Habitat_FOR) %>% 
-#   summarise(across(
-#     .cols = is.numeric,
-#     .fns = list(count=length, mean=mean, sd=sd, se=sd/sqrt(.)),
-#     .names = "{col}_{fn}"))
-
-
-# CORRECT 53.3, 34.4 & 6.3
-
-woodts %>% 
-  select(Habitat_FOR,Hylocomium_splendens_C) %>% 
-  filter(Habitat_FOR=='R') %>% 
-  summarise(mean=mean(Hylocomium_splendens_C))
-
-# convert names to match pifall habitats----
-woodts2<-woodts %>% 
-  mutate('Habitat'=case_when(Habitat_FOR=='F'~'Mature Woodland (F)',
-                             Habitat_FOR=='O'~'Open Habitat (O)',
-                             Habitat_FOR=='R'~'Regenerating Woodland (R)'))
-
-# ALL Summary SE----
-
-woodCMSE<-woodts2 %>% 
-  select(-group,-Habitat_FOR) %>% 
-  group_by(Habitat) %>% 
-  summarise_all(list(mean = ~mean(.), sd = ~sd(.), se = ~sd(.x)/sqrt(length(.x))))
-# freq
-woodmeansF<-woodCMSE %>% 
-  select(1:8)
-
-for ( col in 1:ncol(woodmeansF)){
-  colnames(woodmeansF)[col] <-  sub("_F.*", "", colnames(woodmeansF)[col])
-}
-
-woodmeansF<-woodmeansF %>% 
-  pivot_longer(names_to = 'taxa',
-               values_to = 'mean freq',
-               cols = -Habitat)
-  
-# cover
-woodmeansC<-woodCMSE %>% 
-  select(1,9:15)
-
-for ( col in 1:ncol(woodmeansC)){
-  colnames(woodmeansC)[col] <-  sub("_C.*", "", colnames(woodmeansC)[col])
-}
-
-woodmeansC<-woodmeansC %>% 
-  pivot_longer(names_to = 'taxa',
-               values_to = 'mean cover',
-               cols = -Habitat)
-# merge
-woodmeanscf<-merge(woodmeansC,woodmeansF, 
-                   by=c('Habitat','taxa'),
-                   all=T)
-
-# now do this for all data----
-x<-woodts2 %>% 
-  select(21,16,17,18,19,2:8) #CHECK----
-for ( col in 1:ncol(x)){
-  colnames(x)[col] <-  sub("_F.*", "", colnames(x)[col])
-}
-x<-x %>% 
-  pivot_longer(names_to = 'taxa',
-               values_to = 'frequency',
-               cols = -c(1:5))  
-#
-y<-woodts2 %>% 
-  select(21,16,17,18,19,9:15) #CHECK----
-for ( col in 1:ncol(y)){
-  colnames(y)[col] <-  sub("_C.*", "", colnames(y)[col])
-}
-y<-y %>% 
-  pivot_longer(names_to = 'taxa',
-               values_to = 'cover',
-               cols = -c(1:5))  
-# patterns between vegetation density, height, richness and tree density?
-#merge
-z<-cbind(x,y[,7])
-
-woodts2 %>%
-  ggplot(aes(Habitat,Height_cm,color=Habitat))+
-  geom_boxplot()+
-  geom_jitter(aes(Habitat,Height_cm),
-              height = .05,width=.05,alpha=.5)+
-  labs(title = 'Vegetation height across habitats')+
-  theme_pubclean()
-# vegetation is taller in O, comparable in F & R
-# BUT OVERALL = v. little difference. 
-
-woodts2 %>%
-  ggplot(aes(Habitat,tree_qty,color=Habitat))+
-  geom_boxplot()+
-  geom_jitter(aes(Habitat,tree_qty),
-              height = .05,width=.05,alpha=.5)+
-  labs(title = 'Tree quantity across habitats')+
-  theme_pubclean()
-# more trees in R --> it is not intentionally planted F - old plantation
-
-woodts2 %>%
-  ggplot(aes(Habitat,taxa_unique,color=Habitat))+
-  geom_boxplot()+
-  geom_jitter(aes(Habitat,taxa_unique),
-              height = .05,width=.05,alpha=.5)+
-  labs(title = 'Unique taxa across habitats')+
-  theme_pubclean()
-
-# need to look at the SD and SE because there is signifcantly more variation in the mature woodland
-
-# next analysis should be:
-# linear relationship between taxa and tree density
-
-x %>% 
-  filter(frequency!=0) %>% 
-  # #filter(tree_qty!=0) %>% 
-  ggplot(aes(frequency,Height_cm,color=Habitat))+
+  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  theme_pubclean()+
+  labs(title='All habitats',x='Tree quantity',y='Vegetation height')
+# there is a very week correlation between tree frequency and vegetation height
+w1<-woodlandqr %>% 
+  filter(tree_qty>0) %>% 
+  filter(Habitat_FOR=='F') %>% 
+  ggplot(aes(tree_qty,Height_cm))+
   geom_point()+
-  geom_smooth(method='lm',se=F)
+  geom_smooth(method='lm')+
+  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  theme_pubclean()+
+  labs(title='Mature Woodland',x='Tree quantity',y='Vegetation height')
+
+w2<-woodlandqr %>% 
+  filter(tree_qty>0) %>% 
+  filter(Habitat_FOR=='O') %>% 
+  ggplot(aes(tree_qty,Height_cm))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  theme_pubclean()+
+  labs(title='Open Forest',x='Tree quantity',y='Vegetation height')
+
+w3<-woodlandqr %>% 
+  filter(tree_qty>0) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  ggplot(aes(tree_qty,Height_cm))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  stat_cor(aes(label=..r.label..),color='blue',geom = 'label')+
+  theme_pubclean()+
+  labs(title='Regenerating Forest',x='Tree quantity',y='Vegetation height')
+
+ggarrange(w0,w1,w2,w3)
+
+woodlandqr %>% 
+  filter(tree_qty>0) %>% 
+  ggplot(aes(tree_qty,Height_cm,color=Habitat_FOR))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  stat_cor(show.legend = F)+
+  theme_pubclean()+
+  facet_wrap(~Habitat_FOR,
+             scales = 'free_x')
+# At the habitat level there is more relationship with height and trees
+# Mature forest = negative correlation
+# Open forest negative but few occurences
+# Regen, surprisingly positive, tree qty = greater veg height
+
+# differences: regen is generally shorter, trees are mixed 
+# mature has very tall tress with little light penetration from the canopy
+
+
+
+
+
 
 
 
