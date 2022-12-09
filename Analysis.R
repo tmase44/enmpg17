@@ -19,10 +19,10 @@ woodts$Habitat_FOR<-as.factor(woodts$Habitat_FOR) #habitat
 # long transform the pitfall data
 pitfalllong<-pitfall %>% 
   select(-`Sum of Individuals`,-`Count of taxa`) %>% 
-  pivot_longer(names_to = 'genus',
+  pivot_longer(names_to = 'Taxa',
                values_to = 'count',
                cols = c(-Type,-`Trap line`))
-pitfalllong$genus<-as.factor(pitfalllong$genus)
+pitfalllong$Taxa<-as.factor(pitfalllong$Taxa)
 pitfalllong$`Trap line`<-as.factor(pitfalllong$`Trap line`)
 
 pitfalllong<-pitfalllong %>% 
@@ -33,13 +33,13 @@ pitfalllong<-pitfalllong %>%
 
 #total species occurence
 pitfalltotal<-pitfalllong %>% 
-  group_by(genus) %>% 
+  group_by(Taxa) %>% 
   summarise(n=sum(count)) %>% 
   arrange(desc(n))
 
 # species occurrence by habitat
 pitfallhabs<-pitfalllong %>% 
-  group_by(Type,genus) %>% 
+  group_by(Type,Taxa) %>% 
   summarise(n=sum(count)) %>% 
   arrange(Type,desc(n))
 
@@ -58,7 +58,7 @@ p1<-pitfallhabs %>%
 p2<-pitfallhabs %>% 
   filter(n>0) %>% 
   group_by(Type) %>% 
-  summarise('unique_n'=n_distinct(genus)) %>% 
+  summarise('unique_n'=n_distinct(Taxa)) %>% 
   arrange(desc(unique_n)) %>% 
   ggplot(aes(Type,unique_n))+
   geom_col()+
@@ -70,7 +70,7 @@ p2<-pitfallhabs %>%
 
 # bar species stacked
 p3<-pitfallhabs %>% 
-  ggplot(aes(reorder(genus,-n),n,fill=Type))+
+  ggplot(aes(reorder(Taxa,-n),n,fill=Type))+
   geom_col(position = 'stack')+
   labs(y='n individuals')+
   theme_pubclean()+
@@ -84,15 +84,26 @@ p3<-pitfallhabs %>%
 grid.arrange(p1,p2)
 p3
 
+pitfallhabs %>% 
+  group_by(Type) %>% 
+  summarise(total=sum(n))
+
+pitfallhabs %>% 
+  group_by(Type) %>% 
+  summarise(total=sum(n))
+
+
+82+62+60
 # !!! kable table----
 ## dont need this in the report.
 pitfallhabs %>% 
   pivot_wider(names_from = Type,
               values_from = n) %>% 
   kable(align = 'lccc') %>% 
-  add_header_above(header = c(" "=1,
-                              "Total number of individuals per habitat"=3)) %>% 
-  kable_styling(html_font = 'Times')
+  add_header_above(header = c(
+                              "Table 1: Total number of individuals per habitat"=4),
+                   align = 'l') %>% 
+  kable_styling(html_font = 'Times', full_width = F)
   
 # bigger legend
 myTheme <- theme(legend.text = element_text(size = 12), 
@@ -169,6 +180,7 @@ pitbox4<-pitfalllong %>%
                               'Regenerating Woodland (R)'='#33BBEE'))+
   myTheme
 
+
 #### combobox----
 # SHOW THIS ONE----
 ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
@@ -184,6 +196,58 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
   # Collembola are greater in regen where there is more leaf litter as the forest is mixed decidious and broadleaf.
 
 
+# MEANS ALL PITFALL TRAPS----
+pitfalllong %>% 
+  select(habitat_new,count) %>% 
+  filter(habitat_new=='R') %>% 
+  summarise(n=n(),
+            mean=mean(count),
+            SD=sd(count),
+            SE=SD/sqrt(n))
+# F mean=1.58  SD=3.15  SE=0.437
+# O mean=1.19  SD=2.25  SE=0.312
+# R mean=1.15  SD=2.26  SE=0.314
+
+# MEANS ARANEAE----
+pitfalllong %>% 
+  select(habitat_new,Taxa,count) %>% 
+  filter(Taxa=='Araneae') %>% 
+  filter(habitat_new=='R') %>% 
+  summarise(n=n(),
+            mean=mean(count),
+            SD=sd(count),
+            SE=SD/sqrt(n))
+# F mean=8.5  SD=4.12  SE=2.06
+# O mean=2.5  SD=2.38  SE=1.19
+# R mean=5.5  SD=2.38  SE=1.19
+
+# MEANS DIPTERA----
+pitfalllong %>% 
+  select(habitat_new,Taxa,count) %>% 
+  filter(Taxa=='Diptera') %>% 
+  filter(habitat_new=='R') %>% 
+  summarise(n=n(),
+            mean=mean(count),
+            SD=sd(count),
+            SE=SD/sqrt(n))
+# F mean=3     SD=5.35  SE=2.68
+# O mean=7.25  SD=2.63  SE=1.31
+# R mean=1.5   SD=1.29  SE=0.645
+
+# MEANS COLLEMBOLA----
+pitfalllong %>% 
+  select(habitat_new,Taxa,count) %>% 
+  filter(Taxa=='Collembola') %>% 
+  filter(habitat_new=='R') %>% 
+  summarise(n=n(),
+            mean=mean(count),
+            SD=sd(count),
+            SE=SD/sqrt(n))
+# F mean=2.75  SD=3.10  SE=1.55
+# O mean=2.75  SD=1.26  SE=0.629
+# R mean=4.0   SD=4.90  SE=2.45
+
+#=========================================
 # WOODTS QUADRATS----
 
 # first remove all COVER columns because the variance is too hight
