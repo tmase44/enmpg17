@@ -277,10 +277,54 @@ woodlandqr %>%
 # differences: regen is generally shorter, trees are mixed 
 # mature has very tall tress with little light penetration from the canopy
 
+# species freq by habitat----
 
+## pivot long
+woodlandqrlong <- woodlandqr %>% 
+  select(1:7,12) %>% 
+  pivot_longer(!Habitat_FOR,
+               names_to = 'taxa',
+               values_to = 'freq') %>% 
+  mutate(taxa=case_when(taxa=='Hylocomium_splendens_F'~'Hylocomium splendens',
+                        taxa=='Calluna_vulgaris_F'~'Calluna vulgaris',
+                        taxa=='Vaccinium_vitis_idaea_F'~'Vaccinium vitis idaea',
+                        taxa=='Vaccinium_myrtilus_F'~'Vaccinium myrtilus',
+                        taxa=='Sphagnum_F'~'Sphagnum',
+                        taxa=='Molinia_F'~'Molinia',
+                        taxa=='Polytrichum_F'~'Polytrichum'))
 
+# most common species total in all habs
+woodtaxasum <- woodlandqrlong %>% 
+  group_by(taxa,Habitat_FOR) %>% 
+  summarise(total=sum(freq)) %>% 
+  arrange(desc(total))
+print(woodtaxasum)
+# 1 Hylocomium_splendens_F   1633
+# 2 Calluna_vulgaris_F       1546
+# 3 Vaccinium_vitis_idaea_F   734
+# 4 Vaccinium_myrtilus_F      712
+# 5 Sphagnum_F                162
+# 6 Molinia_F                  88
+# 7 Polytrichum_F              85
 
+woodtaxasum %>% 
+  ggplot(aes(Habitat_FOR,total,fill=Habitat_FOR))+
+  geom_col()+
+  facet_wrap(~taxa)+
+  theme_pubclean()+
+  labs(x='Habitat',y='Frequency')
 
+woodtaxasum %>% 
+  ggplot(aes(reorder(taxa,-total),total))+
+  geom_col()+
+  theme_pubclean()+
+  labs(x='Habitat',y='Frequency')
 
-
+woodlandqrlong %>% 
+  filter(taxa!='Molinia'&taxa!='Polytrichum'&taxa!='Sphagnum') %>% 
+  ggplot(aes(Habitat_FOR,freq,color=Habitat_FOR))+
+  geom_boxplot()+
+  facet_wrap(~taxa)+
+  theme_pubclean()+
+  labs(x='Habitat',y='Frequency')
 
