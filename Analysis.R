@@ -208,14 +208,14 @@ pitfalllong %>%
   group_by(habitat_new,`Trap line`) %>% 
   summarise(x=sum(count)) %>% 
   select(habitat_new,x) %>% 
-  filter(habitat_new=='F') %>% 
+  filter(habitat_new=='R') %>% 
   summarise(n=n(),
             mean=mean(x),
             SD=sd(x),
             SE=SD/sqrt(n))
-# F mean=1.58  SD=3.15  SE=0.437
-# O mean=1.19  SD=2.25  SE=0.312
-# R mean=1.15  SD=2.26  SE=0.314
+# F mean=20.5  SD=8.39  SE=4.19
+# O mean=15.5  SD=3.32  SE=1.66
+# R mean=15.0  SD=4.83  SE=2.42
 
 # MEANS ARANEAE----
 pitfalllong %>% 
@@ -460,7 +460,7 @@ woodtaxasum %>%
 woodlandqrlong %>% 
   filter(taxa!='Molinia'&taxa!='Polytrichum'&taxa!='Sphagnum') %>% 
   ggplot(aes(Habitat_FOR,freq,color=Habitat_FOR))+
-  geom_boxplot()+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   facet_wrap(~taxa)+
   theme_pubclean()+
   labs(x='Habitat',y='Frequency')
@@ -468,7 +468,7 @@ woodlandqrlong %>%
 wb1<-woodlandqrlong %>% 
   filter(taxa=='Calluna vulgaris') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
-  geom_boxplot()+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
   labs(title = '3.1: Calluna vulgaris',x='Habitat',y='Frequency')+
@@ -480,7 +480,7 @@ wb1<-woodlandqrlong %>%
 wb2<-woodlandqrlong %>% 
   filter(taxa=='Hylocomium splendens') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
-  geom_boxplot()+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
     labs(title = '3.2: Hylocomium splendens',x='Habitat',y='Frequency')+
@@ -492,7 +492,7 @@ wb2<-woodlandqrlong %>%
 wb3<-woodlandqrlong %>% 
   filter(taxa=='Vaccinium myrtilus') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
-  geom_boxplot()+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
   labs(title = '3.3: Vaccinium myrtilus',x='Habitat',y='Frequency')+
@@ -504,7 +504,7 @@ wb3<-woodlandqrlong %>%
 wb4<-woodlandqrlong %>% 
   filter(taxa=='Vaccinium vitis idaea') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
-  geom_boxplot()+
+  geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
   labs(title = '3.4: Vaccinium vitis idaea',x='Habitat',y='Frequency')+
