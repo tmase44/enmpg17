@@ -1,6 +1,6 @@
 # Packages----
 library(pacman)
-p_load(tidyverse,readxl,ggpubr,gridExtra,reshape2)
+p_load(tidyverse,readxl,ggpubr,gridExtra,reshape2,kableExtra)
 
 # data import----
 pitfall<-read_xlsx('pitfall.xlsx')
@@ -73,8 +73,21 @@ p3<-pitfallhabs %>%
        title = 'Species occurrence and distribution')
 
 #### plots richness----
+
 grid.arrange(p1,p2)
 p3
+
+# !!! kable table----
+## dont need this in the report.
+pitfallhabs %>% 
+  pivot_wider(names_from = Type,
+              values_from = n) %>% 
+  kable(align = 'lccc') %>% 
+  add_header_above(header = c(" "=1,
+                              "Total number of individuals per habitat"=3)) %>% 
+  kable_styling()
+
+
 
 # boxplot over transects- trap variation
 pitbox1<-pitfalllong %>% 
@@ -126,6 +139,7 @@ pitbox4<-pitfalllong %>%
        title='Collembola distribution across habitats')
 
 #### combobox----
+# SHOW THIS ONE----
 ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
           common.legend = TRUE,
           legend = 'bottom')
@@ -258,6 +272,7 @@ w3<-woodlandqr %>%
   theme_pubclean()+
   labs(title='Regenerating Forest',x='Tree quantity',y='Vegetation height')
 
+# SHOW THIS ONE----
 ggarrange(w0,w1,w2,w3)
 
 woodlandqr %>% 
@@ -297,8 +312,8 @@ woodlandqrlong <- woodlandqr %>%
 woodtaxasum <- woodlandqrlong %>% 
   group_by(taxa,Habitat_FOR) %>% 
   summarise(total=sum(freq)) %>% 
-  arrange(desc(total))
-print(woodtaxasum)
+  arrange(Habitat_FOR,desc(total))
+View(woodtaxasum)
 # 1 Hylocomium_splendens_F   1633
 # 2 Calluna_vulgaris_F       1546
 # 3 Vaccinium_vitis_idaea_F   734
@@ -306,6 +321,13 @@ print(woodtaxasum)
 # 5 Sphagnum_F                162
 # 6 Molinia_F                  88
 # 7 Polytrichum_F              85
+woodtaxasum %>% 
+  ggplot(aes(reorder(taxa,-total),total))+
+  geom_col()+
+  theme_pubclean()+
+  labs(x='Habitat',y='Frequency')
+# 2 species are dominant: H.splendens and C.vulgaris
+# sphagnum, molinia and polytrichium are less common
 
 woodtaxasum %>% 
   ggplot(aes(Habitat_FOR,total,fill=Habitat_FOR))+
@@ -313,13 +335,10 @@ woodtaxasum %>%
   facet_wrap(~taxa)+
   theme_pubclean()+
   labs(x='Habitat',y='Frequency')
+# sphagnum was found more often in open habitat and hardly at all in mature forest
+# V.myrtilus and V.vitis idea were signifcantly more adundant in mature forest
 
-woodtaxasum %>% 
-  ggplot(aes(reorder(taxa,-total),total))+
-  geom_col()+
-  theme_pubclean()+
-  labs(x='Habitat',y='Frequency')
-
+## SHOW THIS ONE----
 woodlandqrlong %>% 
   filter(taxa!='Molinia'&taxa!='Polytrichum'&taxa!='Sphagnum') %>% 
   ggplot(aes(Habitat_FOR,freq,color=Habitat_FOR))+
@@ -328,3 +347,38 @@ woodlandqrlong %>%
   theme_pubclean()+
   labs(x='Habitat',y='Frequency')
 
+# mean,sd,se
+woodlandqr %>% 
+  select(Habitat_FOR,coil_temp_C) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  summarise(n=n(),
+            mean=mean(coil_temp_C),
+            SD=sd(coil_temp_C),
+            SE=SD/sqrt(n))
+
+x<-woodlandqr %>% 
+  select(1:7,12) %>% 
+  group_by(Habitat_FOR) %>% 
+  summarise_all(list(mean = ~mean(.), sd = ~sd(.), se = ~sd(.x)/sqrt(length(.x))))
+
+write_excel_csv(x,'qr_summary_se.csv')
+
+woodlandtable<-read_excel('qr_summary_se.xlsx',sheet='Sheet2')
+view(woodlandtable)
+
+woodlandtable<-woodlandtable %>% 
+  mutate(across(where(is.numeric), round, 3))
+
+colnames(woodlandtable)<-gsub("_m","",colnames(woodlandtable))
+colnames(woodlandtable)<-gsub("_o","",colnames(woodlandtable))
+colnames(woodlandtable)<-gsub("_r","",colnames(woodlandtable))
+
+# !!! kable table ----
+woodlandtable %>%
+  kable(align = 'lcccccccccccc') %>% 
+  add_header_above(header = c(" "=1,
+                              "Mature Forest"=4,
+                              "Open Forest"=4,
+                              "Regenerating Forest"=4)) %>% 
+  kable_styling() %>% 
+  column_spec(column = c(2,3,4,5,10,11,12,13), background = '#F2F2F2')
