@@ -166,7 +166,8 @@ pitbox4<-pitfalllong %>%
 # SHOW THIS ONE----
 ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
           common.legend = TRUE,
-          legend = 'bottom')
+          legend = 'bottom',
+          annotate_figure(fig.lab = 'Fig.1.'))
 
 # Mature woodland ie better for invertebrate biodiversity
   # total individuals and unique taxa are greater in Mature woodland
