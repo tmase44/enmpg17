@@ -92,8 +92,8 @@ pitfallhabs %>%
   kable(align = 'lccc') %>% 
   add_header_above(header = c(" "=1,
                               "Total number of individuals per habitat"=3)) %>% 
-  kable_styling()
-
+  kable_styling(html_font = 'Times')
+  
 # bigger legend
 myTheme <- theme(legend.text = element_text(size = 12), 
                  legend.title = element_text(size = 14), 
