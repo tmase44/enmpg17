@@ -5,12 +5,12 @@ p_load(tidyverse,readxl,ggpubr,gridExtra,reshape2)
 # data import----
 pitfall<-read_xlsx('pitfall.xlsx')
 woodts<-read_xlsx('woodlandts.xlsx')
-qrbias<-read_xlsx('quadratbias.xlsx') # this will helpto support which data is more accurate
+#qrbias<-read_xlsx('quadratbias.xlsx') # this will helpto support which data is more accurate
 
 # factors----
 pitfall$Type<-as.factor(pitfall$Type) # habitat
 woodts$Habitat_FOR<-as.factor(woodts$Habitat_FOR) #habitat
-qrbias$group<-as.factor(qrbias$group) #groups
+#qrbias$group<-as.factor(qrbias$group) #groups
 # qrbias$quadrat<-as.factor # might need this later
 
 # pitfall data----
@@ -83,7 +83,7 @@ pitbox1<-pitfalllong %>%
   summarise(n=sum(count)) %>% 
   #filter(n<20) %>% # remove outliers - optional
   ggplot(aes(Type,n,color=Type))+
-  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
@@ -97,7 +97,7 @@ pitbox1<-pitfalllong %>%
 pitbox2<-pitfalllong %>% 
   filter(genus=='Araneae') %>% 
   ggplot(aes(Type,count,color=Type))+
-  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
@@ -108,7 +108,7 @@ pitbox2<-pitfalllong %>%
 pitbox3<-pitfalllong %>% 
   filter(genus=='Diptera') %>% 
   ggplot(aes(Type,count,color=Type))+
-  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
@@ -119,7 +119,7 @@ pitbox3<-pitfalllong %>%
 pitbox4<-pitfalllong %>% 
   filter(genus=='Collembola') %>% 
   ggplot(aes(Type,count,color=Type))+
-  geom_boxplot(outlier.colour = 'black',outlier.size = 4)+
+  geom_boxplot(outlier.shape=NA)+
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   labs(y='n individuals per trap-line',
@@ -131,7 +131,104 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
           common.legend = TRUE,
           legend = 'bottom')
 
-# woodland quadrats----
+# WOODTS QUADRATS----
+
+# first remove all COVER columns because the variance is too hight
+# Frequency only
+
+woodlandqr<-woodts %>% 
+  select(-c(1,9:15))
+view(woodlandqr)
+
+## vegetation height variance----
+woodlandqr %>% 
+  ggplot(aes(Habitat_FOR,Height_cm))+
+  geom_boxplot()+
+  theme_pubclean()
+# height does not vary much between plots
+# F mean=53.4  SD=17.3  SE=3.06
+# O mean=60.7  SD=15.1  SE=2.67
+# R mean=46.9  SD=15.7  SE=2.86
+woodlandqr %>% 
+  select(Habitat_FOR,Height_cm) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  summarise(n=n(),
+            mean=mean(Height_cm),
+            SD=sd(Height_cm),
+            SE=SD/sqrt(n))
+
+## unique taxa variance----
+woodlandqr %>% 
+  ggplot(aes(Habitat_FOR,taxa_unique))+
+  geom_boxplot()+
+  theme_pubclean()
+# unique taxa does not vary much between plots
+  # HOMOGENOUS!
+# F mean=3.97  SD=0.822  SE=0.145
+# O mean=3.59  SD=0.979  SE=0.173
+# R mean=3.57  SD=0.774  SE=0.141
+woodlandqr %>% 
+  select(Habitat_FOR,taxa_unique) %>% 
+  filter(Habitat_FOR=='F') %>% 
+  summarise(n=n(),
+            mean=mean(taxa_unique),
+            SD=sd(taxa_unique),
+            SE=SD/sqrt(n))
+
+## soil temp variance----
+woodlandqr %>% 
+  ggplot(aes(Habitat_FOR,coil_temp_C))+
+  geom_boxplot()+
+  theme_pubclean()
+#soil temperature also homogenous
+# F mean=9.61  SD=0.499  SE=0.088
+# O mean=9.14  SD=0.624  SE=0.110
+# R mean=9.19  SD=0.388  SE=0.071
+woodlandqr %>% 
+  select(Habitat_FOR,coil_temp_C) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  summarise(n=n(),
+            mean=mean(coil_temp_C),
+            SD=sd(coil_temp_C),
+            SE=SD/sqrt(n))
+
+## tree qty variance----
+woodlandqr %>% 
+  ggplot(aes(Habitat_FOR,tree_qty))+
+  geom_boxplot()+
+  theme_pubclean()
+# trees were more frequent and randomly dispersed in regenerating habitat
+  # Open habitat has just a handful of small trees as expected, it is a fire break
+  # Mature forest is old plantation with evenly spaces trees and little deviation vs Regen.
+# F mean=6.19  SD=2.01  SE=0.355
+# O mean=0.406  SD=0.875  SE=0.115
+# R mean=20.4  SD=9.08  SE=1.66
+woodlandqr %>% 
+  select(Habitat_FOR,tree_qty) %>% 
+  filter(Habitat_FOR=='R') %>% 
+  summarise(n=n(),
+            mean=mean(tree_qty),
+            SD=sd(tree_qty),
+            SE=SD/sqrt(n))
+
+# so how does this affect vegatation?
+
+woodlandqr %>% 
+  ggplot(aes(tree_qty,Height_cm))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  theme_pubclean()
+
+
+
+
+
+
+
+
+
+
+# OLD woodland quadrats----
 
 # F = frequency, in now many quadrats it appeared
 # C = cover, % cover, visual estimate 
@@ -233,9 +330,10 @@ woodts2 %>%
   geom_boxplot()+
   geom_jitter(aes(Habitat,Height_cm),
               height = .05,width=.05,alpha=.5)+
-  labs(title = 'Tree height across habitats')+
+  labs(title = 'Vegetation height across habitats')+
   theme_pubclean()
 # vegetation is taller in O, comparable in F & R
+# BUT OVERALL = v. little difference. 
 
 woodts2 %>%
   ggplot(aes(Habitat,tree_qty,color=Habitat))+
@@ -266,55 +364,5 @@ x %>%
   geom_point()+
   geom_smooth(method='lm',se=F)
 
-x %>% 
-  filter(Habitat=='Mature Woodland (F)') %>% 
-  ggplot(aes(taxa,frequency))+
-  geom_boxplot()+
-  theme_pubclean()
-  
-x %>% 
-  filter(Habitat=='Open Habitat (O)') %>% 
-  ggplot(aes(taxa,frequency))+
-  geom_boxplot()+
-  theme_pubclean()
 
-x %>% 
-  filter(Habitat=='Regenerating Woodland (R)') %>% 
-  ggplot(aes(taxa,frequency))+
-  geom_boxplot()+
-  theme_pubclean()
-
-
-woodmeanscf %>% 
-  ggplot(aes(`mean freq`,`mean cover`,color=Habitat))+
-  geom_point()+
-  geom_smooth()+
-  theme_pubclean()+
-  facet_wrap(~taxa)
-
-# SAME WITH RAW DATA
-z %>% 
-  ggplot(aes(frequency,cover,color=Habitat))+
-  geom_point(alpha=.25)+
-  geom_smooth(se=F)+
-  theme_pubclean()
- # facet_wrap(~taxa)
-
-z %>% 
-  ggplot(aes(tree_qty,cover,color=Habitat))+
-  geom_point(alpha=.25)+
-  geom_smooth(method='lm')+
-  theme_pubclean()+
-  facet_wrap(~Habitat,scale='free')+
-  stat_regline_equation(label.y = 100, aes(label = ..rr.label..),size=5,color='#0077BB')+
-  stat_regline_equation(label.y = 90, aes(label = ..eq.label..),size=5,color='#0077BB')
-
-z %>% 
-  ggplot(aes(tree_qty,frequency,color=Habitat))+
-  geom_point(alpha=.25)+
-  geom_smooth(method='lm')+
-  theme_pubclean()+
-  facet_wrap(~Habitat,scale='free')+
-  stat_regline_equation(label.y = 25, aes(label = ..rr.label..),size=5,color='#0077BB')+
-  stat_regline_equation(label.y = 20, aes(label = ..eq.label..),size=5,color='#0077BB')
 
