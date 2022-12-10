@@ -106,9 +106,13 @@ pitfallhabs %>%
   kable_styling(html_font = 'Times', full_width = F)
   
 # bigger legend
-myTheme <- theme(legend.text = element_text(size = 12), 
-                 legend.title = element_text(size = 14), 
-                 legend.key.size = unit(1, 'cm'))
+myTheme <- theme(legend.text = element_text(size = 14), 
+                 legend.title = element_text(size = 16), 
+                 legend.key.size = unit(1, 'cm'),
+                 axis.title.y = element_text(size=14),
+                 axis.title.x = element_text(size=14),
+                 axis.text.y = element_text(size=16),
+                 axis.text.x = element_text(size=16))
 
 # boxplot over transects- trap variation
 pitbox1<-pitfalllong %>% 
@@ -221,7 +225,7 @@ pitfalllong %>%
 pitfalllong %>% 
   select(habitat_new,Taxa,count) %>% 
   filter(Taxa=='Araneae') %>% 
-  filter(habitat_new=='F') %>% 
+  filter(habitat_new=='O') %>% 
   summarise(n=n(),
             mean=mean(count),
             SD=sd(count),
@@ -469,7 +473,8 @@ wb1<-woodlandqrlong %>%
   filter(taxa=='Calluna vulgaris') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
   geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
-  theme_pubclean()+
+  stat_summary(fun = 'mean')+
+    theme_pubclean()+
   theme(text = element_text(family='Times'))+  
   labs(title = '3.1: Calluna vulgaris',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
@@ -481,7 +486,8 @@ wb2<-woodlandqrlong %>%
   filter(taxa=='Hylocomium splendens') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
   geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
-  theme_pubclean()+
+  stat_summary(fun = 'mean')+
+    theme_pubclean()+
   theme(text = element_text(family='Times'))+  
     labs(title = '3.2: Hylocomium splendens',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
@@ -493,6 +499,7 @@ wb3<-woodlandqrlong %>%
   filter(taxa=='Vaccinium myrtilus') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
   geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
+  stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
   labs(title = '3.3: Vaccinium myrtilus',x='Habitat',y='Frequency')+
@@ -505,6 +512,7 @@ wb4<-woodlandqrlong %>%
   filter(taxa=='Vaccinium vitis idaea') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
   geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
+  stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
   labs(title = '3.4: Vaccinium vitis idaea',x='Habitat',y='Frequency')+
