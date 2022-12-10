@@ -206,13 +206,13 @@ ggarrange(pitbox1,pitbox2,pitbox3,pitbox4,
   # Collembola are greater in regen where there is more leaf litter as the forest is mixed decidious and broadleaf.
 
 ## ALL N = 4 BECAUSE THERE ARE 4 LINES FOR EACH, ALL TRAPS ARE POOLED TOGETHER
-
+options(digits = 5)
 # MEANS ALL PITFALL TRAPS----
 pitfalllong %>% 
   group_by(habitat_new,`Trap line`) %>% 
   summarise(x=sum(count)) %>% 
   select(habitat_new,x) %>% 
-  filter(habitat_new=='R') %>% 
+  filter(habitat_new=='F') %>% 
   summarise(n=n(),
             mean=mean(x),
             SD=sd(x),
@@ -351,7 +351,8 @@ w0<-woodlandqr %>%
   stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-    labs(title='2.1: All habitats',x='Tree quantity',y='Vegetation height')
+    labs(title='3.1: All habitats',x='Tree quantity',y='Vegetation height')+
+  myTheme
 # there is a very week correlation between tree frequency and vegetation height
 w1<-woodlandqr %>% 
   filter(tree_qty>0) %>% 
@@ -362,7 +363,8 @@ w1<-woodlandqr %>%
   stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-  labs(title='2.2: Mature Woodland (F)',x='Tree quantity',y='Vegetation height')
+  labs(title='3.2: Mature Woodland (F)',x='Tree quantity',y='Vegetation height')+
+  myTheme
 
 w2<-woodlandqr %>% 
   filter(tree_qty>0) %>% 
@@ -373,7 +375,8 @@ w2<-woodlandqr %>%
   stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-    labs(title='2.3: Open Habitat (O)',x='Tree quantity',y='Vegetation height')
+    labs(title='3.3: Open Habitat (O)',x='Tree quantity',y='Vegetation height')+
+  myTheme
 
 w3<-woodlandqr %>% 
   filter(tree_qty>0) %>% 
@@ -384,23 +387,54 @@ w3<-woodlandqr %>%
   stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-    labs(title='2.4: Regenerating Forest (R)',x='Tree quantity',y='Vegetation height')
+    labs(title='3.4: Regenerating Forest (R)',x='Tree quantity',y='Vegetation height')+
+  myTheme
 
 # SHOW THIS ONE----
 ggarrange(w0,w1,w2,w3)
 
 # other scatterplots----
 woodlandqr %>% 
-  ggplot(aes(tree_qty,taxa_unique))+
+  filter(tree_qty>0) %>% 
+  filter(Habitat_FOR=='O') %>% 
+    ggplot(aes(tree_qty,Calluna_vulgaris_F))+
   geom_point()+
-  geom_smooth(method='lm',color='#0077BB')+
+  geom_smooth(method='lm')+
   stat_cor(aes(label=..r.label..),color='#0077BB',geom = 'label')+
+  theme_pubclean()+
+  theme(text = element_text(family='Times'))
+
+# pivotlong2 for tree height
+woodlandqrlong2 <- woodlandqr %>% 
+  select(1:7,10) %>% 
+  pivot_longer(!tree_qty,
+               names_to = 'taxa',
+               values_to = 'freq') %>% 
+  mutate(taxa=case_when(taxa=='Hylocomium_splendens_F'~'Hylocomium splendens',
+                        taxa=='Calluna_vulgaris_F'~'Calluna vulgaris',
+                        taxa=='Vaccinium_vitis_idaea_F'~'Vaccinium vitis idaea',
+                        taxa=='Vaccinium_myrtilus_F'~'Vaccinium myrtilus',
+                        taxa=='Sphagnum_F'~'Sphagnum',
+                        taxa=='Molinia_F'~'Molinia',
+                        taxa=='Polytrichum_F'~'Polytrichum'))
+
+woodlandqrlong2 %>% 
+  filter(tree_qty>0) %>% 
+  filter(taxa=='Vaccinium vitis idaea'|
+           taxa=='Vaccinium myrtilus'|
+           taxa=='Molinia'|
+           taxa=='Hylocomium splendens') %>% 
+  ggplot(aes(tree_qty,freq,color=taxa))+
+  geom_point()+
+  geom_smooth(method='lm', se = FALSE)+
+  stat_cor(aes(label=..r.label..),geom = 'label',
+           show.legend = F)+
   theme_pubclean()+
   theme(text = element_text(family='Times'))
 
 # tree density and unique species has a weak negative correlation, R=-0.11
 
-
+?geom_smooth
 
 # At the habitat level there is more relationship with height and trees
 # Mature forest = negative correlation
@@ -469,27 +503,27 @@ woodlandqrlong %>%
   theme_pubclean()+
   labs(x='Habitat',y='Frequency')
 ### !! split this up for separate titles
-wb1<-woodlandqrlong %>% 
+wb2<-woodlandqrlong %>% 
   filter(taxa=='Calluna vulgaris') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
   geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   stat_summary(fun = 'mean')+
     theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-  labs(title = '3.1: Calluna vulgaris',x='Habitat',y='Frequency')+
+  labs(title = '2.2: Calluna vulgaris',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                                              'Open Habitat (O)'='#CC3311',
                                              'Regenerating Woodland (R)'='#33BBEE'))+
   myTheme
 
-wb2<-woodlandqrlong %>% 
+wb1<-woodlandqrlong %>% 
   filter(taxa=='Hylocomium splendens') %>% 
   ggplot(aes(Habitat_FOR,freq,color=habitat_new))+
   geom_boxplot(size=1,outlier.shape=17,outlier.size = 2)+
   stat_summary(fun = 'mean')+
     theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-    labs(title = '3.2: Hylocomium splendens',x='Habitat',y='Frequency')+
+    labs(title = '2.1: Hylocomium splendens',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
@@ -502,7 +536,7 @@ wb3<-woodlandqrlong %>%
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-  labs(title = '3.3: Vaccinium myrtilus',x='Habitat',y='Frequency')+
+  labs(title = '2.3: Vaccinium myrtilus',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                                              'Open Habitat (O)'='#CC3311',
                                              'Regenerating Woodland (R)'='#33BBEE'))+
@@ -515,7 +549,7 @@ wb4<-woodlandqrlong %>%
   stat_summary(fun = 'mean')+
   theme_pubclean()+
   theme(text = element_text(family='Times'))+  
-  labs(title = '3.4: Vaccinium vitis idaea',x='Habitat',y='Frequency')+
+  labs(title = '2.4: Vaccinium vitis idaea',x='Habitat',y='Frequency')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                                              'Open Habitat (O)'='#CC3311',
                                              'Regenerating Woodland (R)'='#33BBEE'))+
