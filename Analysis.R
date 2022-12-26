@@ -126,7 +126,7 @@ pitbox1<-pitfalllong %>%
   theme(text = element_text(family='Times'))+  
     labs(y='n individuals per trap-line',
        x='Habitat',
-       title='1.1: Pitfall samples across habitats')+
+       title='4.1: Pitfall samples across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
@@ -146,7 +146,7 @@ pitbox2<-pitfalllong %>%
   theme(text = element_text(family='Times'))+  
     labs(y='n individuals per trap-line',
        x='Habitat',
-       title='1.2: Araneae distribution across habitats')+
+       title='4.2: Araneae distribution across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
@@ -164,7 +164,7 @@ pitbox3<-pitfalllong %>%
   theme(text = element_text(family='Times'))+  
     labs(y='n individuals per trap-line',
        x='Habitat',
-       title='1.3: Diptera distribution across habitats')+
+       title='4.3: Diptera distribution across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
@@ -182,7 +182,7 @@ pitbox4<-pitfalllong %>%
   theme(text = element_text(family='Times'))+  
   labs(y='n individuals per trap-line',
        x='Habitat',
-       title='1.4: Collembola distribution across habitats')+
+       title='4.4: Collembola distribution across habitats')+
   scale_color_manual(name='Habitat',values=c('Mature Woodland (F)'='#009988',
                               'Open Habitat (O)'='#CC3311',
                               'Regenerating Woodland (R)'='#33BBEE'))+
